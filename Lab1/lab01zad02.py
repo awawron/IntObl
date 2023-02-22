@@ -42,7 +42,7 @@ plt.title('Ludnosc w miastach Polski')
 plt.xlabel('Lata')
 plt.ylabel('Liczba ludnosci [w tys.]')
 
-plt.plot(years, gdansk_data, color='r', marker='o')
+plt.plot(years.astype("str"), gdansk_data, color='r', marker='o')
 plt.plot(years, poznan_data, color='g', marker='o')
 plt.plot(years, szczecin_data, color='b', marker='o')
 
