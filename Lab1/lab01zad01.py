@@ -11,3 +11,5 @@ def select_primes(x):
         if prime(number):
             re.append(number)
     return re
+
+print(select_primes([3, 6, 11, 25, 19]))
