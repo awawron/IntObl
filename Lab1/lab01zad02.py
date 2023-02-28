@@ -1,23 +1,26 @@
 import pandas
 import matplotlib.pyplot as plt
 import numpy as np
+import statistics as stats
 
-def mean(arr):
-    div = 0
-    sum = 0
-    for i in arr:
-        div += 1
-        sum += i
-
-    return sum / div
 
 def std(arr):
     re = []
-    for i in arr:
-        re.append((i - mean(arr)) / np.std(arr, ddof=1))
+    for item in arr:
+        re.append((item - mean(arr)) / np.std(arr, ddof=1))
     return re
 
-path = '/home/LABPK/awawron/IntObl/IntObl/Lab1/miasta.csv'
+
+def norm(arr):
+    re = []
+    max_value = max(arr)
+    min_value = min(arr)
+    for item in arr:
+        re.append((item - min_value) / (max_value - min_value))
+    return re
+
+
+path = "D:\\Studia\\UG\\Sem4\\IntObl\\Lab1\\miasta.csv"
 
 miasta = pandas.read_csv(path)
 print(miasta)
@@ -42,7 +45,7 @@ plt.title('Ludnosc w miastach Polski')
 plt.xlabel('Lata')
 plt.ylabel('Liczba ludnosci [w tys.]')
 
-plt.plot(years.astype("str"), gdansk_data, color='r', marker='o')
+plt.plot(years, gdansk_data, color='r', marker='o')
 plt.plot(years, poznan_data, color='g', marker='o')
 plt.plot(years, szczecin_data, color='b', marker='o')
 
@@ -54,6 +57,33 @@ std_gdansk_data = std(gdansk_data)
 std_poznan_data = std(poznan_data)
 std_szczecin_data = std(szczecin_data)
 
-print(mean(gdansk_data))
-print(gdansk_data)
+print(stats.mean(std_gdansk_data))
+print(stats.stdev(std_gdansk_data))
+# print(gdansk_data)
 print(std_gdansk_data)
+
+norm_gdansk_data = norm(gdansk_data)
+norm_poznan_data = norm(poznan_data)
+norm_szczecin_data = norm(szczecin_data)
+
+print(norm_gdansk_data)
+
+plt.cla()
+
+plt.plot(years, std_gdansk_data, color='r', marker='o')
+plt.plot(years, std_poznan_data, color='g', marker='o')
+plt.plot(years, std_szczecin_data, color='b', marker='o')
+
+plt.legend(['Gdansk', 'Poznan', 'Szczecin'])
+
+plt.show()
+
+plt.cla()
+
+plt.plot(years, norm_gdansk_data, color='r', marker='o')
+plt.plot(years, norm_poznan_data, color='g', marker='o')
+plt.plot(years, norm_szczecin_data, color='b', marker='o')
+
+plt.legend(['Gdansk', 'Poznan', 'Szczecin'])
+
+plt.show()
