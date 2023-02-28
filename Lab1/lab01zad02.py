@@ -7,7 +7,7 @@ import statistics as stats
 def std(arr):
     re = []
     for item in arr:
-        re.append((item - mean(arr)) / np.std(arr, ddof=1))
+        re.append((item - stats.mean(arr)) / np.std(arr, ddof=1))
     return re
 
 
@@ -20,10 +20,25 @@ def norm(arr):
     return re
 
 
+def plot_cities(y, data1, data2, data3):
+    plt.cla()
+
+    plt.title('Ludnosc w miastach Polski')
+    plt.xlabel('Lata')
+    plt.ylabel('Liczba ludnosci [w tys.]')
+
+    plt.plot(y, data1, color='r', marker='o')
+    plt.plot(y, data2, color='g', marker='o')
+    plt.plot(y, data3, color='b', marker='o')
+
+    plt.legend(['Gdansk', 'Poznan', 'Szczecin'])
+
+    plt.show()
+
+
 path = "D:\\Studia\\UG\\Sem4\\IntObl\\Lab1\\miasta.csv"
 
 miasta = pandas.read_csv(path)
-print(miasta)
 
 data = {
     'Rok': [2010],
@@ -34,56 +49,21 @@ df = pandas.DataFrame(data, index=[10])
 
 new_miasta = pandas.concat([miasta, df])
 
-print(new_miasta)
-
 years = new_miasta.Rok
 gdansk_data = new_miasta.Gdansk
 poznan_data = new_miasta.Poznan
 szczecin_data = new_miasta.Szczecin
 
-plt.title('Ludnosc w miastach Polski')
-plt.xlabel('Lata')
-plt.ylabel('Liczba ludnosci [w tys.]')
-
-plt.plot(years, gdansk_data, color='r', marker='o')
-plt.plot(years, poznan_data, color='g', marker='o')
-plt.plot(years, szczecin_data, color='b', marker='o')
-
-plt.legend(['Gdansk', 'Poznan', 'Szczecin'])
-
-plt.show()
+plot_cities(years, gdansk_data, poznan_data, szczecin_data)
 
 std_gdansk_data = std(gdansk_data)
 std_poznan_data = std(poznan_data)
 std_szczecin_data = std(szczecin_data)
 
-print(stats.mean(std_gdansk_data))
-print(stats.stdev(std_gdansk_data))
-# print(gdansk_data)
-print(std_gdansk_data)
+plot_cities(years, std_gdansk_data, std_poznan_data, std_szczecin_data)
 
 norm_gdansk_data = norm(gdansk_data)
 norm_poznan_data = norm(poznan_data)
 norm_szczecin_data = norm(szczecin_data)
 
-print(norm_gdansk_data)
-
-plt.cla()
-
-plt.plot(years, std_gdansk_data, color='r', marker='o')
-plt.plot(years, std_poznan_data, color='g', marker='o')
-plt.plot(years, std_szczecin_data, color='b', marker='o')
-
-plt.legend(['Gdansk', 'Poznan', 'Szczecin'])
-
-plt.show()
-
-plt.cla()
-
-plt.plot(years, norm_gdansk_data, color='r', marker='o')
-plt.plot(years, norm_poznan_data, color='g', marker='o')
-plt.plot(years, norm_szczecin_data, color='b', marker='o')
-
-plt.legend(['Gdansk', 'Poznan', 'Szczecin'])
-
-plt.show()
+plot_cities(years, norm_gdansk_data, norm_poznan_data, norm_szczecin_data)
