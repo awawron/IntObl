@@ -1,43 +1,20 @@
 import pygad
 import numpy
+import time
 
-items = [
-    {"name": "zegar", "value": 100, "weight": 7}, 
-    {"name": "obraz-pejzaz", "value": 300, "weight": 7}, 
-    {"name": "obraz-portrt", "value": 200, "weight": 6}, 
-    {"name": "radio", "value": 40, "weight": 2}, 
-    {"name": "laptop", "value": 500, "weight": 5}, 
-    {"name": "lampka nocna", "value": 70, "weight": 6}, 
-    {"name": "srebrne sztucce", "value": 100, "weight": 1}, 
-    {"name": "porcelana", "value": 250, "weight": 3}, 
-    {"name": "figura z brazu", "value": 300, "weight": 10}, 
-    {"name": "skorzana torebka", "value": 280, "weight": 3}, 
-    {"name": "odkurzacz", "value": 300, "weight": 15}, 
-]
+S = [1, 2, 3, 6, 10, 17, 25, 29, 30, 41, 51, 60, 70, 79, 80]
 
 #definiujemy parametry chromosomu
 #geny to liczby: 0 lub 1
 gene_space = [0, 1]
 
 #definiujemy funkcję fitness
-# after testing it turned out that omitting weight (aside from going over max weight) in the fitness function gives better results
 def fitness_func(solution, solution_idx):
-    # check how much value we get and how much weight we used
-    value = 0
-    weight = 0
-    for i in range(len(items)):
-        if solution[i] == 1:
-            value += items[i]["value"]
-            weight += items[i]["weight"]
-
-    # if we go over the max weight we return 0 points
-    if weight > 25:
-        return 0
-
-    #normally return the value (more important) and deduce points for unused weight (less important)
-    # fitness = value - (25 - weight)
-    fitness = value
-
+    sum1 = numpy.sum(solution * S)
+    solution_invert = 1 - solution
+    sum2 = numpy.sum(solution_invert * S)
+    fitness = -numpy.abs(sum1-sum2)
+    #lub: fitness = 1.0 / (1.0 + numpy.abs(sum1-sum2))
     return fitness
 
 fitness_function = fitness_func
@@ -45,13 +22,13 @@ fitness_function = fitness_func
 #ile chromsomów w populacji
 #ile genow ma chromosom
 sol_per_pop = 10
-num_genes = len(items)
+num_genes = len(S)
 
 #ile wylaniamy rodzicow do "rozmanazania" (okolo 50% populacji)
 #ile pokolen
 #ilu rodzicow zachowac (kilka procent)
 num_parents_mating = 5
-num_generations = 50
+num_generations = 100
 keep_parents = 2
 
 #jaki typ selekcji rodzicow?
@@ -66,6 +43,8 @@ crossover_type = "single_point"
 mutation_type = "random"
 mutation_percent_genes = 8
 
+start_time = time.time()
+
 #inicjacja algorytmu z powyzszymi parametrami wpisanymi w atrybuty
 ga_instance = pygad.GA(gene_space=gene_space,
                        num_generations=num_generations,
@@ -77,15 +56,35 @@ ga_instance = pygad.GA(gene_space=gene_space,
                        keep_parents=keep_parents,
                        crossover_type=crossover_type,
                        mutation_type=mutation_type,
-                       mutation_percent_genes=mutation_percent_genes)
+                       mutation_percent_genes=mutation_percent_genes,
+                       stop_criteria=["reach_1600"])
+
+end_time = time.time()
+inittime = end_time - start_time
+print("Initialization time: " + str(inittime))
+# reset timer                       
+start_time = time.time()
 
 #uruchomienie algorytmu
 ga_instance.run()
+
+end_time = time.time()
+runtime = end_time - start_time
+print("Runtime: " + str(runtime))
+
+with open("log.txt", "a") as file:
+    entry = "Inittime: " + str(inittime) + " Runtime: " + str(runtime)
+    file.write(entry)
 
 #podsumowanie: najlepsze znalezione rozwiazanie (chromosom+ocena)
 solution, solution_fitness, solution_idx = ga_instance.best_solution()
 print("Parameters of the best solution : {solution}".format(solution=solution))
 print("Fitness value of the best solution = {solution_fitness}".format(solution_fitness=solution_fitness))
+print("Number of generations passed is {generations_completed}".format(generations_completed=ga_instance.generations_completed))
+
+#tutaj dodatkowo wyswietlamy sume wskazana przez jedynki
+prediction = numpy.sum(S*solution)
+print("Predicted output based on the best solution : {prediction}".format(prediction=prediction))
 
 #wyswietlenie wykresu: jak zmieniala sie ocena na przestrzeni pokolen
 ga_instance.plot_fitness()

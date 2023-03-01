@@ -1,5 +1,6 @@
 import pygad
 import numpy
+import time
 
 items = [
     {"name": "zegar", "value": 100, "weight": 7}, 
@@ -66,6 +67,8 @@ crossover_type = "single_point"
 mutation_type = "random"
 mutation_percent_genes = 8
 
+start_time = time.time()
+
 #inicjacja algorytmu z powyzszymi parametrami wpisanymi w atrybuty
 ga_instance = pygad.GA(gene_space=gene_space,
                        num_generations=num_generations,
@@ -77,15 +80,31 @@ ga_instance = pygad.GA(gene_space=gene_space,
                        keep_parents=keep_parents,
                        crossover_type=crossover_type,
                        mutation_type=mutation_type,
-                       mutation_percent_genes=mutation_percent_genes)
+                       mutation_percent_genes=mutation_percent_genes,
+                       stop_criteria=["reach_1600"])
+
+end_time = time.time()
+inittime = end_time - start_time
+print("Initialization time: " + str(inittime))
+# reset timer                       
+start_time = time.time()
 
 #uruchomienie algorytmu
 ga_instance.run()
+
+end_time = time.time()
+runtime = end_time - start_time
+print("Runtime: " + str(runtime))
+
+with open("log.txt", "a") as file:
+    entry = " Inittime: " + str(inittime) + " Runtime: " + str(runtime) + " Generations: " + "{generations_completed}".format(generations_completed=ga_instance.generations_completed) + " \n"
+    file.write(entry)
 
 #podsumowanie: najlepsze znalezione rozwiazanie (chromosom+ocena)
 solution, solution_fitness, solution_idx = ga_instance.best_solution()
 print("Parameters of the best solution : {solution}".format(solution=solution))
 print("Fitness value of the best solution = {solution_fitness}".format(solution_fitness=solution_fitness))
+print("Number of generations passed is {generations_completed}".format(generations_completed=ga_instance.generations_completed))
 
 #wyswietlenie wykresu: jak zmieniala sie ocena na przestrzeni pokolen
 ga_instance.plot_fitness()
