@@ -18,11 +18,10 @@ generations = 0
 counter = 0
 for item in filtered:
     counter += 1
-    print(item)
     if i == 0 or i == 1:
-        time += float(item)
         i += 1
-    if i == 2:
+        time += float(item)
+    elif i == 2:
         generations += int(item)
         i = 0
 
