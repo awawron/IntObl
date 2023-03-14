@@ -1,15 +1,16 @@
 import pygad
-import numpy
+import math
 
 # definiujemy parametry chromosomu
 # geny to liczby: 0 lub 1
-gene_space = [0, 1]
+gene_space = {'low': 0, 'high': 1}
 
 # definiujemy funkcję fitness
 
 
 def fitness_func(solution, solution_idx):
-    fitness = 0
+    fitness = math.exp(-2*(solution[1]-math.sin(solution[0]))**2)+math.sin(
+        solution[2]*solution[4])+math.cos(solution[3]*solution[5])
 
     return fitness
 
@@ -18,15 +19,15 @@ fitness_function = fitness_func
 
 # ile chromsomów w populacji
 # ile genow ma chromosom
-sol_per_pop = 10
+sol_per_pop = 25
 num_genes = 6
 
 # ile wylaniamy rodzicow do "rozmanazania" (okolo 50% populacji)
 # ile pokolen
 # ilu rodzicow zachowac (kilka procent)
-num_parents_mating = 5
-num_generations = 50
-keep_parents = 2
+num_parents_mating = 10
+num_generations = 100
+keep_parents = 5
 
 # jaki typ selekcji rodzicow?
 # sss = steady, rws=roulette, rank = rankingowa, tournament = turniejowa
@@ -38,7 +39,7 @@ crossover_type = "single_point"
 # mutacja ma dzialac na ilu procent genow?
 # trzeba pamietac ile genow ma chromosom
 mutation_type = "random"
-mutation_percent_genes = 8
+mutation_percent_genes = 20
 
 # inicjacja algorytmu z powyzszymi parametrami wpisanymi w atrybuty
 ga_instance = pygad.GA(gene_space=gene_space,
