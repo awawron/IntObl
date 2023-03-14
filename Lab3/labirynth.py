@@ -25,9 +25,10 @@ labyrinth = [
     [WALL, PATH, WALL, PATH, PATH, PATH, PATH, PATH, PATH, PATH, EXIT, WALL],
     [WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL]
 ]
+
 max_steps = 30
 
-gene_space = [-1, 0, 1, 2, 3]
+gene_space = [NONE, UP, RIGHT, DOWN, LEFT]
 
 
 def find_start_end(labyrinth):
@@ -43,32 +44,42 @@ def find_start_end(labyrinth):
 
 
 def check_move(pos, move, nextmove=None):
-    if move == NONE:
-        return {"new_position": pos, "fitness_change": -1}
-
     fitness_change = 0
+
+    if move == NONE:
+        fitness_change -= 100
+        return {"new_position": pos, "fitness_change": fitness_change}
 
     if move == UP:
         newpos = [pos[0] - 1, pos[1]]
-        # if nextmove != None and nextmove == DOWN:
-        #     fitness_change -= 5
+        if nextmove != None and nextmove == DOWN:
+            fitness_change -= 100
+        else:
+            fitness_change += 5
     elif move == RIGHT:
         newpos = [pos[0], pos[1] + 1]
-        # if nextmove != None and nextmove == LEFT:
-        #     fitness_change -= 5
+        if nextmove != None and nextmove == LEFT:
+            fitness_change -= 100
+        else:
+            fitness_change += 5
     elif move == DOWN:
         newpos = [pos[0] + 1, pos[1]]
-        # if nextmove != None and nextmove == UP:
-        #     fitness_change -= 5
+        if nextmove != None and nextmove == UP:
+            fitness_change -= 100
+        else:
+            fitness_change += 5
     elif move == LEFT:
         newpos = [pos[0], pos[1] - 1]
-        # if nextmove != None and nextmove == RIGHT:
-        #     fitness_change -= 5
+        if nextmove != None and nextmove == RIGHT:
+            fitness_change -= 100
+        else:
+            fitness_change += 5
 
     if labyrinth[newpos[0]][newpos[1]] == WALL:
-        fitness_change -= 10
+        fitness_change -= 100
         return {"new_position": pos, "fitness_change": fitness_change}
     else:
+        fitness_change += 10
         return {"new_position": newpos, "fitness_change": fitness_change}
 
 
@@ -80,37 +91,28 @@ def fitness_func(solution, solution_idx):
 
     fitness = 0
 
-    # For the purpose of checking the next move the last move is made outside the loop
-    for i in range(len(solution) - 1):
-        if ended == False and solution[i] == NONE:
-            fitness -= 2
-        elif ended == True and solution[i] != NONE:
-            fitness -= 2
-        else:
-            fitness += 1
-        if pos == end:
+    for i in range(len(solution)):
+        if pos == end and solution[i] == NONE:
+            fitness += 1000
+        if ended == False and pos == end:
             ended = True
-        move = check_move(pos, solution[i], solution[i + 1])
-        pos = move["new_position"]
-        fitness += move["fitness_change"]
+            fitness += 10000
 
-        distance = abs(pos[0] - end[0]) + abs(pos[1] - end[1])
-        fitness -= distance
+        # if last move
+        if i == len(solution) - 1:
+            move = check_move(pos, solution[i])
+            pos = move["new_position"]
+            fitness += move["fitness_change"]
 
-    last = len(solution) - 1
+            distance = abs(pos[0] - end[0]) + abs(pos[1] - end[1])
+            fitness -= i*distance
+        else:
+            move = check_move(pos, solution[i], solution[i + 1])
+            pos = move["new_position"]
+            fitness += move["fitness_change"]
 
-    if ended == True and solution[last] != NONE:
-        fitness -= 1
-    elif ended == True and solution[last] != NONE:
-        fitness -= 1
-    else:
-        fitness += 1
-    move = check_move(pos, solution[last])
-    pos = move["new_position"]
-    fitness += move["fitness_change"]
-
-    distance = abs(pos[0] - end[0]) + abs(pos[1] - end[1])
-    fitness -= distance
+            distance = abs(pos[0] - end[0]) + abs(pos[1] - end[1])
+            fitness -= i*distance
 
     return fitness
 
@@ -118,12 +120,12 @@ def fitness_func(solution, solution_idx):
 # variables
 fitness_function = fitness_func
 
-sol_per_pop = 20
+sol_per_pop = 30
 num_genes = max_steps
 
-num_parents_mating = 10
+num_parents_mating = 15
 num_generations = 1000
-keep_parents = 10
+keep_parents = 15
 
 parent_selection_type = "sss"
 
