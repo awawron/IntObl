@@ -124,10 +124,10 @@ sol_per_pop = 30
 num_genes = max_steps
 
 num_parents_mating = 15
-num_generations = 1000
+num_generations = 500
 keep_parents = 15
 
-parent_selection_type = "sss"
+parent_selection_type = "tournament"
 
 crossover_type = "single_point"
 
