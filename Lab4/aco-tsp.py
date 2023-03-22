@@ -74,7 +74,7 @@ colony = AntColony(COORDS, ant_count=50, alpha=0.9, beta=1.2,
 # 405.9
 # a_c=50 a=0.9 b=0.1 p_e_r=0.5 p_c=500 i=20
 # 361.3
-# Z mojej ograniczonej ilości wyników wychodzi na to, że wysokie alpha i beta,
+# Z moich wyników wychodzi na to, że wysokie alpha i beta,
 # niska ewaporacja i duży pheromone_constant daje dość szybkie rozwiązanie
 
 optimal_nodes = colony.get_path()
