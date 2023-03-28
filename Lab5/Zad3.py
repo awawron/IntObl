@@ -1,8 +1,9 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn import tree
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.tree import DecisionTreeClassifier
+import matplotlib.pyplot as plt
 
 df = pd.read_csv("iris.csv")
 
@@ -19,7 +20,16 @@ all_classes = df['species'].values
 dtc = DecisionTreeClassifier()
 dtc.fit(train_set, train_classes)
 
-tree.plot_tree(dtc)
+extree = tree.export_text(dtc)
+print(extree)
+plotree = tree.plot_tree(dtc)
+
+pred = dtc.predict(test_set)
+confmtx = confusion_matrix(test_classes, pred)
+plot = ConfusionMatrixDisplay(confusion_matrix=confmtx, display_labels=["setosa", "virginica", "verticolor"])
+
+plot.plot()
+plt.show()
 
 print(dtc.score(test_set, test_classes))
 
