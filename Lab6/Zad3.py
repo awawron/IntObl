@@ -30,6 +30,6 @@ train_score = accuracy_score(predictions_train, train_classes)
 print("score on train data: ", train_score)
 test_score = accuracy_score(predictions_test, test_classes)
 print("score on test data: ", test_score)
-print(predictions_train)
+# print(predictions_train)
 
 
