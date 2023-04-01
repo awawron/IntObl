@@ -1,25 +1,111 @@
 import pygad
 import math
 
-# definiujemy parametry chromosomu
-# geny to liczby: 0 lub 1
-gene_space = {'low': 0, 'high': 1}
 
-# definiujemy funkcję fitness
+#region ---------- INPUTS ----------
+# 2 stations 3 jobs
+input_s1 = [
+    [(1, 3)],
+    [(0, 1)], 
+    [(0, 2)]
+]
+input_s2 = [
+    [(0, 2), (1, 2)], 
+    [(0, 2), (1, 2)], 
+    [(0, 3), (1, 3)]
+]
+input_s3 = [
+    [(0, 2), (1, 3)], 
+    [(0, 6)], 
+    [(0, 3), (1, 6)]
+]
 
+# 4 stations 6 jobs
+input_m1 = [
+    [(0, 5), (3, 2)],
+    [(1, 3), (2, 3)],
+    [(2, 7), (3, 10)],
+    [(1, 10), (2, 5)],
+    [(1, 2), (0, 1)],
+    [(3, 10), (0, 1)]
+]
+input_m2 = [
+    [(0, 17), (1, 2), (2, 1), (3, 3)],
+    [(0, 11), (1, 7), (2, 5), (3, 5)],
+    [(0, 19), (1, 20), (2, 10), (3, 9)],
+    [(0, 15), (1, 1), (2, 3), (3, 8)],
+    [(0, 14), (1, 7), (2, 7), (3, 7)],
+    [(0, 13), (1, 1), (2, 2), (3, 5)]
+]
+input_m3 = [
+    [(1, 5), (2, 10), (3, 12)],
+    [(0, 1), (3, 10)],
+    [(0, 4), (1, 9), (2, 4), (3, 1)],
+    [(0, 7), (1, 1), (2, 9), (3, 2)],
+    [(0, 3)],
+    [(0, 3), (1, 1), (3, 10)]
+]
 
-def fitness_func(solution, solution_idx):
-    fitness = None # TO DO
+# 8 stations 12 jobs
+input_l1 = [
+    [(), (), ()],
+    [(), (), ()],
+    [(), (), ()],
+    [(), (), ()],
+    [(), (), ()],
+    [(), (), ()],
+    [(), (), ()],
+    [(), (), ()],
+    [(), (), ()],
+    [(), (), ()],
+    [(), (), ()],
+    [(), (), ()]
+]
+input_l2 = [
+    [(0), (1), (2), (3), (4), (5), (6), (7)],
+    [(0), (1), (2), (3), (4), (5), (6), (7)],
+    [(0), (1), (2), (3), (4), (5), (6), (7)],
+    [(0), (1), (2), (3), (4), (5), (6), (7)],
+    [(0), (1), (2), (3), (4), (5), (6), (7)],
+    [(0), (1), (2), (3), (4), (5), (6), (7)],
+    [(0), (1), (2), (3), (4), (5), (6), (7)],
+    [(0), (1), (2), (3), (4), (5), (6), (7)],
+    [(0), (1), (2), (3), (4), (5), (6), (7)],
+    [(0), (1), (2), (3), (4), (5), (6), (7)],
+    [(0), (1), (2), (3), (4), (5), (6), (7)],
+    [(0), (1), (2), (3), (4), (5), (6), (7)]
+]
+input_l3 = [
+    [(0), (1), (2), (3), (4), (5), (6), (7)],
+    [(), (), ()],
+    [(0), (1), (2), (3), (4), (5), (6), (7)],
+    [(), (), (), (), ],
+    [(), (), (), (), (), (), ()],
+    [(), (), ()],
+    [(0), (1), (2), (3), (4), (5), (6), (7)],
+    [(), ()],
+    [(), (), (), ()],
+    [(0), (1), (2), (3), (4), (5), (6), (7)],
+    [(0), (1), (2), (3), (4), (5), (6), (7)],
+    [(), (), (), (), (), ()]
+]
+#endregion
 
-    return fitness
+CHOSEN_INPUT = input_s1
+MACHINE_COUNT = len(CHOSEN_INPUT) - len(CHOSEN_INPUT) / 3
 
+job_count = 0
+for i in CHOSEN_INPUT:
+    job_count += len(i)
 
-fitness_function = fitness_func
+gene_space = range(job_count)
 
 # ile chromsomów w populacji
 # ile genow ma chromosom
 sol_per_pop = 25
-num_genes = 6
+num_genes = job_count
+
+
 
 # ile wylaniamy rodzicow do "rozmanazania" (okolo 50% populacji)
 # ile pokolen
@@ -40,18 +126,28 @@ crossover_type = "single_point"
 mutation_type = "random"
 mutation_percent_genes = 20
 
+def fitness_func(solution, solution_idx):
+    fitness = None # TO DO
+
+    return fitness
+
+fitness_function = fitness_func
+
 # inicjacja algorytmu z powyzszymi parametrami wpisanymi w atrybuty
-ga_instance = pygad.GA(gene_space=gene_space,
-                       num_generations=num_generations,
-                       num_parents_mating=num_parents_mating,
-                       fitness_func=fitness_function,
-                       sol_per_pop=sol_per_pop,
-                       num_genes=num_genes,
-                       parent_selection_type=parent_selection_type,
-                       keep_parents=keep_parents,
-                       crossover_type=crossover_type,
-                       mutation_type=mutation_type,
-                       mutation_percent_genes=mutation_percent_genes)
+ga_instance = pygad.GA(
+    gene_space=gene_space,
+    num_generations=num_generations,
+    num_parents_mating=num_parents_mating,
+    fitness_func=fitness_function,
+    sol_per_pop=sol_per_pop,
+    num_genes=num_genes,
+    parent_selection_type=parent_selection_type,
+    keep_parents=keep_parents,
+    crossover_type=crossover_type,
+    mutation_type=mutation_type,
+    mutation_percent_genes=mutation_percent_genes,
+    allow_duplicate_genes=False
+)
 
 # uruchomienie algorytmu
 ga_instance.run()
