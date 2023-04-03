@@ -91,12 +91,44 @@ input_l3 = [
 ]
 #endregion
 
-CHOSEN_INPUT = input_s1
-MACHINE_COUNT = len(CHOSEN_INPUT) - len(CHOSEN_INPUT) / 3
+CHOSEN_INPUT = input_s3
+MACHINE_COUNT = int(len(CHOSEN_INPUT) - len(CHOSEN_INPUT) / 3)
+
+print(MACHINE_COUNT)
 
 job_count = 0
 for i in CHOSEN_INPUT:
     job_count += len(i)
+
+processed_input = []
+
+for i in range(len(CHOSEN_INPUT)):
+    for j in range(len(CHOSEN_INPUT[i])):
+        processed_input.append((i, CHOSEN_INPUT[i][j][0], CHOSEN_INPUT[i][j][1]))
+
+def process_output(output):
+    machines = [[] for i in MACHINE_COUNT]
+
+    for i in output:
+        better_i = int(i)
+        job_number = str(processed_input[better_i][0])
+        machine_number = processed_input[better_i][1]
+        machine = machines[machine_number]
+        time = processed_input[better_i][2]
+
+        for k in range(MACHINE_COUNT):
+                fill_amount = 0
+                if k == machine_number:
+                    pass
+                elif len(machines[k]) > len(machine):
+                    idx = len(machine)
+                    for j in range(time):
+                        if len(machines[k]) > idx + j and machines[k][idx + j] == job_number:
+                            fill_amount = j + 1
+
+                # deduct fitness for idle time
+                for j in range(fill_amount):
+                    machine.append('N')
 
 gene_space = range(job_count)
 
@@ -104,8 +136,6 @@ gene_space = range(job_count)
 # ile genow ma chromosom
 sol_per_pop = 25
 num_genes = job_count
-
-
 
 # ile wylaniamy rodzicow do "rozmanazania" (okolo 50% populacji)
 # ile pokolen
@@ -127,7 +157,42 @@ mutation_type = "random"
 mutation_percent_genes = 20
 
 def fitness_func(solution, solution_idx):
-    fitness = None # TO DO
+    fitness = 0
+    machines = [[] for i in range(MACHINE_COUNT)]
+
+    for i in solution:
+        better_i = int(i)
+        job_number = str(processed_input[better_i][0])
+        machine_number = processed_input[better_i][1]
+        machine = machines[machine_number]
+        time = processed_input[better_i][2]
+        
+        # make sure there is no overlap
+        for k in range(MACHINE_COUNT):
+            fill_amount = 0
+            if k == machine_number:
+                pass
+            elif len(machines[k]) > len(machine):
+                idx = len(machine)
+                for j in range(time):
+                    if len(machines[k]) > idx + j and machines[k][idx + j] == job_number:
+                        fill_amount = j + 1
+
+            # deduct fitness for idle time
+            fitness -= fill_amount
+            for j in range(fill_amount):
+                machine.append('N')
+
+        for j in range(time):
+            machine.append(job_number)
+
+    # deduct a lot of fitness for the length
+    fitness -= 5 * len(max(machines, key=len))
+    # for i in machines:
+    #     print(i)
+    # print(len(max(machines, key=len)))
+
+    print(fitness)
 
     return fitness
 
@@ -157,6 +222,8 @@ solution, solution_fitness, solution_idx = ga_instance.best_solution()
 print("Parameters of the best solution : {solution}".format(solution=solution))
 print("Fitness value of the best solution = {solution_fitness}".format(
     solution_fitness=solution_fitness))
+
+print(best_layout)
 
 # wyswietlenie wykresu: jak zmieniala sie ocena na przestrzeni pokolen
 ga_instance.plot_fitness()
