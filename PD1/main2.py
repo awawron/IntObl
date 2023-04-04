@@ -27,14 +27,24 @@ def generate_input(machine_count, job_count, random_length=False):
 
 def process_output(output):
     machines = [[] for i in range(MACHINE_COUNT)]
+    jobs_done = []
     deducted_for_idle = 0
 
-    for i in output:
-        better_i = int(i)
-        job_number = str(processed_input[better_i][0])
-        machine_number = processed_input[better_i][1]
-        machine = machines[machine_number]
-        time = processed_input[better_i][2]
+    for i in range(0, len(output), 2):
+        job_number = int(output[i])
+        machine_number = int(output[i + 1])
+
+        if (job_number, machine_number) in jobs_done:
+            return None
+        elif job_number >= len(CHOSEN_INPUT):
+            return None
+        elif machine_number >= len(CHOSEN_INPUT[job_number]):
+            return None
+        else:
+            job = CHOSEN_INPUT[job_number][machine_number]
+            machine_number = job[0]
+            machine = machines[machine_number]
+            time = job[1]
 
         for k in range(MACHINE_COUNT):
             fill_amount = 0
@@ -53,13 +63,20 @@ def process_output(output):
 
         for j in range(time):
             machine.append(job_number)
+        jobs_done.append((job_number, machine_number))
 
     return (deducted_for_idle, machines)
 
 def fitness_func(solution, solution_idx):
     fitness = 0
 
-    (idle, machines) = process_output(solution)
+    check = process_output(solution)
+
+    if check == None:
+        return -1000000
+    else:
+        idle = check[0]
+        machines = check[1]
 
     # deduct fitness for idle time
     fitness -= idle
@@ -229,35 +246,29 @@ times = []
 for nothing in range(100):
 
     random_idx = random.randint(0, 2)
-    CHOSEN_INPUT = small[random_idx][0]
-    MACHINE_COUNT = small[random_idx][1]
+    CHOSEN_INPUT = medium[random_idx][0]
+    MACHINE_COUNT = medium[random_idx][1]
 
     chosen.append(random_idx)
 
     start = time.time()
+    
     job_count = 0
     for i in CHOSEN_INPUT:
         job_count += len(i)
 
-    processed_input = []
-
-    for i in range(len(CHOSEN_INPUT)):
-        for j in range(len(CHOSEN_INPUT[i])):
-            processed_input.append(
-                (i, CHOSEN_INPUT[i][j][0], CHOSEN_INPUT[i][j][1]))
-
-    gene_space = range(job_count)
+    gene_space = range(MACHINE_COUNT)
 
     # ile chromsomów w populacji
     # ile genow ma chromosom
-    sol_per_pop = 10
-    num_genes = job_count
+    sol_per_pop = 20
+    num_genes = 2*job_count
 
     # ile wylaniamy rodzicow do "rozmanazania" (okolo 50% populacji)
     # ile pokolen
     # ilu rodzicow zachowac (kilka procent)
     num_parents_mating = 5
-    num_generations = 50
+    num_generations = 200
     keep_parents = 1
 
     # jaki typ selekcji rodzicow?
@@ -287,7 +298,6 @@ for nothing in range(100):
         crossover_type=crossover_type,
         mutation_type=mutation_type,
         mutation_percent_genes=mutation_percent_genes,
-        allow_duplicate_genes=False
     )
 
     # uruchomienie algorytmu
@@ -302,12 +312,14 @@ for nothing in range(100):
     #     solution_fitness=solution_fitness))
 
 
-    solution_vis = process_output(solution)[1]
+    solution_vis_tuple = process_output(solution)
     # print("Machine and job visualization:")
     # for i in solution_vis:
     #     print(i)
-
-    length = len(max(solution_vis, key=len))
+    if solution_vis_tuple == None:
+        length = -1
+    else:
+        length = len(max(solution_vis_tuple[1], key=len))
     # print("Length of all the jobs: {len}".format(len=length))
 
     # wyswietlenie wykresu: jak zmieniala sie ocena na przestrzeni pokolen
