@@ -226,7 +226,7 @@ chosen = []
 results = []
 times = []
 
-for nothing in range(100):
+for nothing in range(1):
 
     random_idx = random.randint(0, 2)
     CHOSEN_INPUT = small[random_idx][0]
@@ -250,15 +250,15 @@ for nothing in range(100):
 
     # ile chromsomów w populacji
     # ile genow ma chromosom
-    sol_per_pop = 10
+    sol_per_pop = 50
     num_genes = job_count
 
     # ile wylaniamy rodzicow do "rozmanazania" (okolo 50% populacji)
     # ile pokolen
     # ilu rodzicow zachowac (kilka procent)
-    num_parents_mating = 5
-    num_generations = 50
-    keep_parents = 1
+    num_parents_mating = 25
+    num_generations = 500
+    keep_parents = 3
 
     # jaki typ selekcji rodzicow?
     # sss = steady, rws=roulette, rank = rankingowa, tournament = turniejowa
@@ -270,7 +270,7 @@ for nothing in range(100):
     # mutacja ma dzialac na ilu procent genow?
     # trzeba pamietac ile genow ma chromosom
     mutation_type = "random"
-    mutation_percent_genes = 20
+    mutation_percent_genes = 12
 
     fitness_function = fitness_func
 
@@ -297,18 +297,18 @@ for nothing in range(100):
 
     # podsumowanie: najlepsze znalezione rozwiazanie (chromosom+ocena)
     solution, solution_fitness, solution_idx = ga_instance.best_solution()
-    # print("Parameters of the best solution : {solution}".format(solution=solution))
-    # print("Fitness value of the best solution = {solution_fitness}".format(
-    #     solution_fitness=solution_fitness))
+    print("Parameters of the best solution : {solution}".format(solution=solution))
+    print("Fitness value of the best solution = {solution_fitness}".format(
+        solution_fitness=solution_fitness))
 
 
     solution_vis = process_output(solution)[1]
-    # print("Machine and job visualization:")
-    # for i in solution_vis:
-    #     print(i)
+    print("Machine and job visualization:")
+    for i in solution_vis:
+        print(i)
 
     length = len(max(solution_vis, key=len))
-    # print("Length of all the jobs: {len}".format(len=length))
+    print("Length of all the jobs: {len}".format(len=length))
 
     # wyswietlenie wykresu: jak zmieniala sie ocena na przestrzeni pokolen
     # ga_instance.plot_fitness()
@@ -316,10 +316,11 @@ for nothing in range(100):
 
     results.append(length)
     times.append(end - start)
+    print(nothing)
 
-with open("result.txt", "w") as f:
-    f.write(str(chosen))
-    f.write("\n\n")
-    f.write(str(results))
-    f.write("\n\n")
-    f.write(str(times))
+# with open("result.txt", "w") as f:
+#     f.write(str(chosen))
+#     f.write("\n\n")
+#     f.write(str(results))
+#     f.write("\n\n")
+#     f.write(str(times))
