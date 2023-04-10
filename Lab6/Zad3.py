@@ -2,8 +2,9 @@ import numpy as np
 import pandas as pd
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
 from sklearn.preprocessing import LabelEncoder
+import matplotlib.pyplot as plt
 
 df = pd.read_csv("diabetes.csv")
 
@@ -18,7 +19,7 @@ all_classes = label_encoder.fit_transform(all_classes)
 clf = MLPClassifier(activation='relu',
                     alpha=0.0001,
                     max_iter=500,
-                    hidden_layer_sizes=(6,3), 
+                    hidden_layer_sizes=(6, 3), 
                     random_state=1)
 
 clf.fit(train_set, train_classes)     
@@ -32,4 +33,7 @@ test_score = accuracy_score(predictions_test, test_classes)
 print("score on test data: ", test_score)
 # print(predictions_train)
 
-
+confmtx = confusion_matrix(test_classes, predictions_test)
+plot = ConfusionMatrixDisplay(confusion_matrix = confmtx)
+plot.plot()
+plt.show()
