@@ -1,10 +1,22 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
+def convolution2D(image, filter, stride=1):
+    height, width, channels = image.shape
+    filter_size = filter.shape[0]
+    output_height = (height - filter_size) // stride + 1
+    output_width = (width - filter_size) // stride + 1
+    output = np.zeros((output_height, output_width))
+
+    for i in range(0, height - filter_size + 1, stride):
+        for j in range(0, width - filter_size + 1, stride):
+            for k in range(channels):
+                output[i//stride, j//stride] += np.sum(image[i:i+filter_size, j:j+filter_size, k] * filter[:, :])
+    return output
+
 # tworzymy tablice o wymiarach 128x128x3 (3 kanaly to RGB)
 # uzupelnioną zerami = kolor czarny
 data = np.zeros((128, 128, 3), dtype=np.uint8)
-
 
 # chcemy zeby obrazek byl czarnobialy,
 # wiec wszystkie trzy kanaly rgb uzupelniamy tymi samymi liczbami
@@ -34,4 +46,46 @@ for i in range(128):
 
 # konwersja macierzy na obrazek i wyświetlenie
 plt.imshow(data, interpolation='nearest')
+plt.show()
+
+filter1 = np.array([[1, 0, -1],
+           [1, 0, -1],
+           [1, 0, -1]])
+
+filter2 = np.array([[1, 1, 1],
+           [0, 0, 0],
+           [-1, -1, -1]])
+
+output = convolution2D(data, filter1, 1)
+
+plt.imshow(output, interpolation='nearest')
+plt.show()
+
+output = convolution2D(data, filter1, 2)
+
+plt.imshow(output, interpolation='nearest')
+plt.show()
+
+output = convolution2D(data, filter2, 1)
+
+plt.imshow(output, interpolation='nearest')
+plt.show()
+
+output = convolution2D(data, filter2, 2)
+
+plt.imshow(output, interpolation='nearest')
+plt.show()
+
+sobel = np.array([[0, 1, 2],
+                  [-1, 0, 1],
+                  [-2, -1, 0]])
+
+output = convolution2D(data, sobel, 1)
+
+plt.imshow(output, interpolation='nearest')
+plt.show()
+
+output = convolution2D(data, sobel, 2)
+
+plt.imshow(output, interpolation='nearest')
 plt.show()
