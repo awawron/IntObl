@@ -3,6 +3,7 @@ import numpy as np         # dealing with arrays
 import os                  # dealing with directories
 from random import shuffle # mixing up or currently ordered data that might lead our network astray in training.
 from tqdm import tqdm      # a nice pretty percentage bar for tasks. Thanks to viewer Daniel Bühler for this suggestion
+import matplotlib.pyplot as plt
 
 TRAIN_DIR = 'dogs-cats-mini/train'
 TEST_DIR = 'dogs-cats-mini/test'
@@ -28,7 +29,7 @@ def create_train_data():
         img = cv2.resize(img, (IMG_SIZE,IMG_SIZE))
         training_data.append([np.array(img),np.array(label)])
     shuffle(training_data)
-    np.save('train_data.npy', training_data)
+    # np.save('train_data.npy', training_data)
     return training_data
 
 def process_test_data():
@@ -41,7 +42,7 @@ def process_test_data():
         testing_data.append([np.array(img), img_num])
         
     shuffle(testing_data)
-    np.save('test_data.npy', testing_data)
+    # np.save('test_data.npy', testing_data)
     return testing_data
 
 train_data = create_train_data()
@@ -53,41 +54,8 @@ from tflearn.layers.conv import conv_2d, max_pool_2d
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
 
-convnet = input_data(shape=[None, IMG_SIZE, IMG_SIZE, 1], name='input')
-
-convnet = conv_2d(convnet, 32, 5, activation='relu')
-convnet = max_pool_2d(convnet, 5)
-
-convnet = conv_2d(convnet, 64, 5, activation='relu')
-convnet = max_pool_2d(convnet, 5)
-
-convnet = fully_connected(convnet, 1024, activation='relu')
-convnet = dropout(convnet, 0.8)
-
-convnet = fully_connected(convnet, 2, activation='softmax')
-convnet = regression(convnet, optimizer='adam', learning_rate=LR, loss='categorical_crossentropy', name='targets')
-
-model = tflearn.DNN(convnet, tensorboard_dir='log')
-
-if os.path.exists('{}.meta'.format(MODEL_NAME)):
-    model.load(MODEL_NAME)
-    print('model loaded!')
-
-train = train_data[:-500]
-test = train_data[-500:]
-
-X = np.array([i[0] for i in train]).reshape(-1,IMG_SIZE,IMG_SIZE,1)
-Y = [i[1] for i in train]
-
-test_x = np.array([i[0] for i in test]).reshape(-1,IMG_SIZE,IMG_SIZE,1)
-test_y = [i[1] for i in test]
-
-model.fit({'input': X}, {'targets': Y}, n_epoch=3, validation_set=({'input': test_x}, {'targets': test_y}), 
-    snapshot_step=500, show_metric=True, run_id=MODEL_NAME)
-
 import tensorflow as tf
-tf.reset_default_graph()
-
+tf.compat.v1.reset_default_graph()
 convnet = input_data(shape=[None, IMG_SIZE, IMG_SIZE, 1], name='input')
 
 convnet = conv_2d(convnet, 32, 5, activation='relu')
@@ -113,11 +81,9 @@ convnet = regression(convnet, optimizer='adam', learning_rate=LR, loss='categori
 
 model = tflearn.DNN(convnet, tensorboard_dir='log')
 
-
-
-if os.path.exists('{}.meta'.format(MODEL_NAME)):
-    model.load(MODEL_NAME)
-    print('model loaded!')
+# if os.path.exists('{}.meta'.format(MODEL_NAME)):
+#     model.load(MODEL_NAME)
+#     print('model loaded!')
 
 train = train_data[:-500]
 test = train_data[-500:]
@@ -128,65 +94,48 @@ Y = [i[1] for i in train]
 test_x = np.array([i[0] for i in test]).reshape(-1,IMG_SIZE,IMG_SIZE,1)
 test_y = [i[1] for i in test]
 
+
+# Initialize lists to store training loss and accuracy
+train_loss = []
+train_acc = []
+
+# Define a custom callback to record training loss and accuracy during training
+class CustomCallback(tflearn.callbacks.Callback):
+    def __init__(self):
+        self.losses = []
+        self.accs = []
+
+    def on_batch_end(self, training_state, snapshot=False):
+        # Append training loss and accuracy to the lists
+        self.losses.append(training_state.loss_value)
+        self.accs.append(training_state.acc_value)
+
+custom_callback = CustomCallback()
 model.fit({'input': X}, {'targets': Y}, n_epoch=3, validation_set=({'input': test_x}, {'targets': test_y}), 
-    snapshot_step=500, show_metric=True, run_id=MODEL_NAME)
+    snapshot_step=500, show_metric=True, run_id=MODEL_NAME, callbacks=custom_callback)
 
-model.save(MODEL_NAME)
+# LEARNING CURVE
+train_loss = custom_callback.losses[2:]
+train_acc = custom_callback.accs[2:]
 
-import tensorflow as tf
-tf.reset_default_graph()
+print(train_loss)
+print(train_acc)
 
-convnet = input_data(shape=[None, IMG_SIZE, IMG_SIZE, 1], name='input')
+plt.plot(train_loss, label='Train Loss')
+plt.plot(train_acc, label='Train Accuracy')
+plt.xlabel('Batches')
+plt.ylabel('Loss/Accuracy')
+plt.legend()
+plt.show()
 
-convnet = conv_2d(convnet, 32, 5, activation='relu')
-convnet = max_pool_2d(convnet, 5)
-
-convnet = conv_2d(convnet, 64, 5, activation='relu')
-convnet = max_pool_2d(convnet, 5)
-
-convnet = conv_2d(convnet, 128, 5, activation='relu')
-convnet = max_pool_2d(convnet, 5)
-
-convnet = conv_2d(convnet, 64, 5, activation='relu')
-convnet = max_pool_2d(convnet, 5)
-
-convnet = conv_2d(convnet, 32, 5, activation='relu')
-convnet = max_pool_2d(convnet, 5)
-
-convnet = fully_connected(convnet, 1024, activation='relu')
-convnet = dropout(convnet, 0.8)
-
-convnet = fully_connected(convnet, 2, activation='softmax')
-convnet = regression(convnet, optimizer='adam', learning_rate=LR, loss='categorical_crossentropy', name='targets')
-
-model = tflearn.DNN(convnet, tensorboard_dir='log')
-
-
-
-if os.path.exists('C:/Users/H/Desktop/KaggleDogsvsCats/{}.meta'.format(MODEL_NAME)):
-    model.load(MODEL_NAME)
-    print('model loaded!')
-
-train = train_data[:-500]
-test = train_data[-500:]
-
-X = np.array([i[0] for i in train]).reshape(-1,IMG_SIZE,IMG_SIZE,1)
-Y = [i[1] for i in train]
-
-test_x = np.array([i[0] for i in test]).reshape(-1,IMG_SIZE,IMG_SIZE,1)
-test_y = [i[1] for i in test]
-
-model.fit({'input': X}, {'targets': Y}, n_epoch=10, validation_set=({'input': test_x}, {'targets': test_y}), 
-    snapshot_step=500, show_metric=True, run_id=MODEL_NAME)
-
-model.save(MODEL_NAME)
+# model.save(MODEL_NAME)
 
 import matplotlib.pyplot as plt
 
 # if you need to create the data:
-#test_data = process_test_data()
+test_data = process_test_data()
 # if you already have some saved:
-test_data = np.load('test_data.npy')
+# test_data = np.load('test_data.npy')
 
 fig=plt.figure()
 
