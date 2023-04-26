@@ -20,16 +20,19 @@ df = df[(df['LeagueIndex'] >= 1) & (df['LeagueIndex'] <= 8) &
 
 cols_to_filter = df.columns[2:]
 
-# Calculate the IQR for each column
-Q1 = df.quantile(0.25)
-Q3 = df.quantile(0.75)
-IQR = Q3 - Q1
+# # Calculate the IQR for each column
+# Q1 = df.quantile(0.25)
+# Q3 = df.quantile(0.75)
+# IQR = Q3 - Q1
 
-# Set a threshold for outlier removal (e.g., 1.5*IQR)
-threshold = 10
+# # Set a threshold for outlier removal (e.g., 1.5*IQR)
+# threshold = 10
 
-# Remove any rows with a value outside the range [Q1 - threshold*IQR, Q3 + threshold*IQR]
-df = df[~((df[cols_to_filter] < (Q1 - threshold*IQR)) | (df[cols_to_filter] > (Q3 + threshold*IQR))).any(axis=1)]
+# # Remove any rows with a value outside the range [Q1 - threshold*IQR, Q3 + threshold*IQR]
+# df = df[~((df[cols_to_filter] < (Q1 - threshold*IQR)) | (df[cols_to_filter] > (Q3 + threshold*IQR))).any(axis=1)]
+
+scaler = preprocessing.StandardScaler().fit(df[cols_to_filter])
+train_set = scaler.transform(df[cols_to_filter])
 
 # Save the cleaned data to a new CSV file
 df.to_csv('data/SkillCraft_clean.csv', index=False)

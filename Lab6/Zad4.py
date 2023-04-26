@@ -1,5 +1,6 @@
 import numpy as np
 from keras.models import Sequential
+import keras
 from keras.layers import Dense
 import matplotlib.pyplot as plt
 from ann_visualizer.visualize import ann_viz;
@@ -35,6 +36,8 @@ def makeModel(x, y, activation, optimizer):
     plt.show()
 
     ann_viz(model, view=True, filename='network.gv', title="My graph")
+
+opt = keras.optimizers.Adam(learning_rate=0.0001)
 
 makeModel(better_x, y, 'relu', 'adam')
 makeModel(better_x, y, 'relu', 'sgd')
